@@ -1,4 +1,4 @@
-yfinance==0.2.40
+yfinance==0.2.37
 pandas
 numpy
 scikit-learn
