@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 # -------------------------
 def descargar_datos(ticker, period="2y"):
     try:
-        df = yf.download(ticker, period=period, interval="1d", progress=False)
+        df = yf.download(ticker, period=period, interval="1d", progress=False,threads=False)
 
         if df is None or df.empty:
             print(f"⚠️ No data for {ticker}")
