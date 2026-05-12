@@ -25,7 +25,7 @@ jobs:
         run: python script.py
 
       - name: Guardar resultado
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ranking
           path: ranking.csv
