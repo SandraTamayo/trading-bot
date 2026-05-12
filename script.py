@@ -1,14 +1,21 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
+import time
 from sklearn.ensemble import RandomForestClassifier
 
 # -------------------------
-# 1. Descargar datos
+# 1. Descargar datos (robusto)
 # -------------------------
 def descargar_datos(ticker, period="2y"):
     try:
-        df = yf.download(ticker, period=period, interval="1d", progress=False,threads=False)
+        df = yf.download(
+            ticker,
+            period=period,
+            interval="1d",
+            progress=False,
+            threads=False  # 🔥 clave para GitHub
+        )
 
         if df is None or df.empty:
             print(f"⚠️ No data for {ticker}")
@@ -37,7 +44,6 @@ def indicadores(df):
     df["RSI"] = 100 - (100 / (1 + rs))
 
     df["RET_5"] = df["Close"].pct_change(5)
-
     return df
 
 
@@ -130,9 +136,20 @@ if __name__ == "__main__":
     print("📥 Descargando datos...")
 
     for t in tickers:
-        df = descargar_datos(t)
+        df = None
+
+        # 🔁 Intentos para evitar bloqueo de Yahoo
+        for intento in range(3):
+            df = descargar_datos(t)
+
+            if df is not None:
+                break
+
+            print(f"🔁 Reintentando {t}...")
+            time.sleep(2)
 
         if df is None:
+            print(f"❌ No se pudo obtener {t}")
             continue
 
         try:
@@ -146,6 +163,9 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"❌ Error procesando {t}: {e}")
+
+    if df_all.empty:
+        raise ValueError("🚨 No se pudo descargar ningún dato")
 
     print("\n🤖 Entrenando modelo...")
     model = entrenar_modelo(df_all)
